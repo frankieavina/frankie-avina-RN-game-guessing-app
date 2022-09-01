@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View, ViewBase} from 'react-native';
 
 import NumberContainer from '../components/game/NumberContainer';
@@ -18,13 +18,23 @@ function generateRandomBetween(min, max, exclude) {
     }
 }
 
-function GameScreen({userNumber}) {
-    const initialGuess = generateRandomBetween(minBoundary,maxBoundary, userNumber);
+function GameScreen({userNumber, onGameOver}) {
+    // need to hard code because will cause crash since useeffect is late 
+    // one render on instead of useEffect we can use useMemo
+    const initialGuess = generateRandomBetween(1,100, userNumber);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
+    useEffect(() => {
+        if( currentGuess === userNumber){
+            onGameOver();
+        }
+    },[currentGuess,userNumber, onGameOver])
 
     function nextGuessHandler(direction){
         // checking if the user is lying and avoiding a crash 
-        if(direction === 'lower' && currentGuess < userNumber){
+        if (
+          (direction === 'lower' && currentGuess < userNumber) || 
+          (direction === 'greater' && currentGuess > userNumber)
+        ){
             Alert.alert('Dont Lie!', 'You know this is wrong..',[{test:'Sorry!', style:'cancel'}]);
             return;
         }
@@ -51,7 +61,7 @@ function GameScreen({userNumber}) {
                 {/* bind allows us to pre-configure the parameter value that will be used in a future
                 function execution */}
                 <PrimaryButton onPress={nextGuessHandler.bind(this, 'lower')}>-</PrimaryButton>
-                <PrimaryButton onPress={nextGuessHandler(this, 'greater')}>+</PrimaryButton>
+                <PrimaryButton onPress={nextGuessHandler.bind(this, 'greater')}>+</PrimaryButton>
             </View>
             <View>
                 {/* Log Rounds */}

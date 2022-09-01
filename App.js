@@ -4,18 +4,29 @@ import { StyleSheet, Text, View, ImageBackground, SafeAreaView } from 'react-nat
 import StartGameScreen from './screens/StartGameScreen';
 import { LinearGradient } from 'expo-linear-gradient';
 import GameScreen from './screens/GameScreen';
+import GameOverScreen from './screens/GameOverScreen';
 
 export default function App() {
   const [userNumber, setUserNumber] = useState();
+  const [gameIsOver, setGameIsOver] = useState(true);
 
   const pickedNumberHandler = (pickedNumber) => {
-    setUserNumber(pickedNumber)
+    setUserNumber(pickedNumber);
+    setGameIsOver(false);
+  }
+
+  function gameOverHandler(){
+    setGameIsOver(true)
   }
 
   let screen = <StartGameScreen onPickedNumber={pickedNumberHandler} />;
 
   if (userNumber){
-    screen = <GameScreen userNumber={userNumber}/>
+    screen = <GameScreen userNumber={userNumber} onGameOver={gameOverHandler}/>
+  }
+
+  if (gameIsOver && userNumber){
+    screen = <GameOverScreen />
   }
 
   return (
