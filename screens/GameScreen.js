@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View, ViewBase} from 'react-native';
+import { Ionicons } from '@expo/vector-icons'
 
 import NumberContainer from '../components/game/NumberContainer';
+import Card from '../components/ui/Card';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import Title from '../components/ui/Title';
+import InstructionText from '../components/ui/InstructionText';
 
 let minBoundary = 1;
 let maxBoundary = 100;
@@ -23,11 +26,18 @@ function GameScreen({userNumber, onGameOver}) {
     // one render on instead of useEffect we can use useMemo
     const initialGuess = generateRandomBetween(1,100, userNumber);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
+    const [guessRounds, setGuessRounds] = useState([initialGuess]);
+
     useEffect(() => {
         if( currentGuess === userNumber){
             onGameOver();
         }
     },[currentGuess,userNumber, onGameOver])
+
+    useEffect(() =>{
+        minBoundary = 1;
+        maxBoundary = 100;
+    },[])
 
     function nextGuessHandler(direction){
         // checking if the user is lying and avoiding a crash 
@@ -46,6 +56,7 @@ function GameScreen({userNumber, onGameOver}) {
         }
         const newRndNumber = generateRandomBetween(minBoundary,maxBoundary, currentGuess);
         setCurrentGuess(newRndNumber);
+        setGuessRounds((prevGuessRounds) => [...prevGuessRounds, newRndNumber]);
     }
 
   return (
@@ -53,19 +64,29 @@ function GameScreen({userNumber, onGameOver}) {
         <Title>Opponent's Guess</Title>
         <NumberContainer>{currentGuess}</NumberContainer>
         <Text></Text>
-        <View>
-            <Text>
+        <Card>
+            <InstructionText>
                 Higher or Lower?
-            </Text>
-            <View>
-                {/* bind allows us to pre-configure the parameter value that will be used in a future
-                function execution */}
-                <PrimaryButton onPress={nextGuessHandler.bind(this, 'lower')}>-</PrimaryButton>
-                <PrimaryButton onPress={nextGuessHandler.bind(this, 'greater')}>+</PrimaryButton>
+            </InstructionText>
+            <View style={styles.buttonsContainer}>
+                <View style={styles.buttonContainer}>
+                    {/* bind allows us to pre-configure the parameter value that will be used in a future
+                    function execution */}
+                    <PrimaryButton onPress={nextGuessHandler.bind(this, 'lower')}>
+                        <Ionicons name="md-remove" size={24} color="white"/>
+                    </PrimaryButton>
+                </View>
+                <View style={styles.buttonContainer}>
+                    <PrimaryButton onPress={nextGuessHandler.bind(this, 'greater')}>
+                        <Ionicons name="md-add" size={24} color="white"/>
+                    </PrimaryButton>
+                </View>
             </View>
             <View>
-                {/* Log Rounds */}
             </View>
+        </Card>
+        <View>
+            {guessRounds.map(data => <Text key={data}>{data}</Text>)}
         </View>
     </View>
   )
@@ -75,7 +96,15 @@ export default GameScreen
 
 const styles = StyleSheet.create({
     screen:{
-        //flex: 1,
+        flex: 1,
+        height: 100,
         padding: 24
+    },
+    buttonsContainer:{
+        flexDirection: 'row'
+    },
+    buttonContainer:{
+        flex:1
     }
+
 })

@@ -9,6 +9,7 @@ import GameOverScreen from './screens/GameOverScreen';
 export default function App() {
   const [userNumber, setUserNumber] = useState();
   const [gameIsOver, setGameIsOver] = useState(true);
+  const [guessRounds, setGuessRounds] = useState(0);
 
   const pickedNumberHandler = (pickedNumber) => {
     setUserNumber(pickedNumber);
@@ -19,6 +20,11 @@ export default function App() {
     setGameIsOver(true)
   }
 
+  function startNewGameHandler (){
+    setUserNumber(null);
+    setGuessRounds(0);
+  }
+
   let screen = <StartGameScreen onPickedNumber={pickedNumberHandler} />;
 
   if (userNumber){
@@ -26,7 +32,7 @@ export default function App() {
   }
 
   if (gameIsOver && userNumber){
-    screen = <GameOverScreen />
+    screen = <GameOverScreen userNumber={userNumber} roundsNumber={guessRounds} onStartNewGame={startNewGameHandler}/>
   }
 
   return (
@@ -39,7 +45,7 @@ export default function App() {
     >
       {/* Since we have a notch in iphone we use this component to make sure the text 
       isnt in that area */}
-      <SafeAreaView>
+      <SafeAreaView style={styles.rootScreen}>
         {screen}
       </SafeAreaView>
       </ImageBackground>
@@ -49,7 +55,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   rootScreen:{
-    flex:1,
+    flex:1
   },
   backgroundImage:{
     opacity: 0.15
